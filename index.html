@@ -20,6 +20,15 @@
   </head>
   <body>
 
+    <!--
+      * Prevent Popup
+      *
+      * We Set a target attribute to prevent the submission from taking us to the
+      * Google Form's response url. Submitting to a hidden iframe mimics a typical
+      * ajax response.
+    -->
+    <iframe src="#" id="empty_target" name="empty_target" style="visibility:hidden; display: none;"></iframe>
+
     <!-- Custom form to submit to our spreadsheet -->
     <form id="spreadsheet_responses"
       name="spreadsheet_responses"
