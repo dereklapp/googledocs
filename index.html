@@ -19,8 +19,132 @@
 
   </head>
   <body>
+
+    <!-- Custom form to submit to our spreadsheet -->
+    <form id="spreadsheet_responses"
+      name="spreadsheet_responses"
+      action=""
+      method="post"
+      target="empty_target"
+      >
+      <!-- name field -->
+      <div>
+        <label>
+          Name
+        </label>
+        <input type="text"
+          id="name"
+          name="name"
+          class="input"
+          placeholder="Enter your name"
+          >
+      </div>
+      <!-- email field -->
+      <div>
+        <label>
+          Email
+        </label>
+        <input type="email"
+          id="email"
+          name="email"
+          class="input"
+          placeholder="Enter your email"
+          >
+      </div>
+      <!-- colour field -->
+      <div>
+        <label>
+          Favourite Colour
+        </label>
+        <input type="radio"
+          name="colour"
+          id="colour_red"
+          value="Red"
+          >
+          Red
+        <input type="radio"
+          name="colour"
+          id="colour_blue"
+          value="Blue"
+          >
+          Blue
+        <input type="radio"
+          name="colour"
+          id="colour_green"
+          value="Green"
+          >
+          Green
+        <input type="radio"
+          name="colour"
+          id="colour_other"
+          value="Other"
+          >
+          Other
+      </div>
+      <!-- submit button -->
+      <input type="submit"
+        id="submit"
+        name="submit"
+        class="submit"
+        value="Submit"
+        >
+    </form>
     
     <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script>
+
+      /**
+       * @name submit_results
+       *
+       * @description
+       * Blocks initial form submission, sets the values for our Google query
+       * with the values submitted in the form, then completes submission.
+      **/
+      function submit_results(e) {
+
+        //e.preventDefault();
+
+        // define constants from google form
+        //var spreadsheet = '1_UEqhApzANxrKqWz9cQFQ38qaBVpuKFuS9zvaOP1s1A';
+        var baseurl     = 'https://docs.google.com/forms/d/1WxtuIuwiqNX2YMKXqREZXVc8QiV3nOF9zKuhjd77icE/formResponse';
+        var submitref   = '&submit=Submit';
+        var nameID      = 'entry.564320569';
+        var emailID     = 'entry.1542797104';
+        var colourID    = 'entry.1404808100';
+
+        // validate / prep our form data
+        // i'm skipping validation because it's a demo.
+        var name    = encodeURIComponent($(this).find('#name') .val());
+        var email   = encodeURIComponent($(this).find('#email').val());
+        var colour  = encodeURIComponent($(this).find('input[type=\'radio\']:checked').val());
+
+        // assemble our form destination
+        var submiturl = (baseurl + '?'
+          + nameID + '=' + name
+          + '&' + emailID + '=' + email
+          + '&' + colourID + '=' + colour
+          + submitref
+        );
+
+        console.log('name: ' + name);
+        console.log('email: ' + email);
+        console.log('color: ' + colour);
+
+        // update form action and submit
+        $(this)[0].action=submiturl;
+
+      }
+
+
+
+      // Init
+      $(document).ready(function() {
+        
+        // set bindings
+        $('#spreadsheet_responses').bind('submit', submit_results);
+
+      });
+    </script>
 
   </body>
 </html>
