@@ -103,9 +103,10 @@
     <script>
 
       /**
-       * @name submit_results
+       * @name:
+       * submit_results
        *
-       * @description
+       * @description:
        * Blocks initial form submission, sets the values for our Google query
        * with the values submitted in the form, then completes submission.
       **/
@@ -114,8 +115,8 @@
         //e.preventDefault();
 
         // define constants from google form
-        //var spreadsheet = '1_UEqhApzANxrKqWz9cQFQ38qaBVpuKFuS9zvaOP1s1A';
-        var baseurl     = 'https://docs.google.com/forms/d/1WxtuIuwiqNX2YMKXqREZXVc8QiV3nOF9zKuhjd77icE/formResponse';
+        var spreadsheet = '1WxtuIuwiqNX2YMKXqREZXVc8QiV3nOF9zKuhjd77icE';
+        var baseurl     = 'https://docs.google.com/forms/d/'+ spreadsheet +'/formResponse';
         var submitref   = '&submit=Submit';
         var nameID      = 'entry.564320569';
         var emailID     = 'entry.1542797104';
