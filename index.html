@@ -89,9 +89,9 @@
       * We Set a target attribute to prevent the submission from taking us to the
       * Google Form's response url. Submitting to a hidden iframe mimics a typical
       * ajax response.
-      * * the src attributes causes the .ready() functions to run twice.
     -->
-    <iframe id="empty_target"
+    <iframe src="#"
+      id="empty_target"
       name="empty_target"
       style="display: none;"
       >
@@ -216,6 +216,13 @@
     <script>
 
       /**
+       * Set Global Variables
+      **/
+      var _spreadsheet = '12dg24BuxtXZ2Zm4HaCMAAZ-FHr5kpRpmv-xgWlcd7mk';
+      var _form        = '1WxtuIuwiqNX2YMKXqREZXVc8QiV3nOF9zKuhjd77icE';
+      var _table       = $('#results');
+
+      /**
        * @name:
        * submit_results
        *
@@ -228,8 +235,7 @@
         //e.preventDefault();
 
         // define constants from google form
-        var spreadsheet = '12dg24BuxtXZ2Zm4HaCMAAZ-FHr5kpRpmv-xgWlcd7mk';
-        var baseurl     = 'https://docs.google.com/forms/d/'+ spreadsheet +'/formResponse';
+        var baseurl     = 'https://docs.google.com/forms/d/'+ e.data.form +'/formResponse';
         var submitref   = '&submit=Submit';
         var nameID      = 'entry.564320569';
         var emailID     = 'entry.1542797104';
@@ -254,11 +260,19 @@
 
         console.log('name: ' + name);
         console.log('email: ' + email);
-        console.log('comments: ' + commentsID);
+        console.log('comments: ' + comments);
         console.log('return?: ' + return_status);
 
         // update form action and submit
         $(this)[0].action=submiturl;
+
+        // call fetch_results() to refresh the table
+        setTimeout(
+          function() {
+            fetch_results(e.data.sheet, e.data.table);
+          },
+          500
+        );
 
       }
 
@@ -269,39 +283,33 @@
        * @description:
        * Pull results from Google Spreadsheet as a json object. Append to table.
       **/
-      function fetch_results() {
-        
-        console.log('fetch results');
+      function fetch_results(spreadsheet, table) {
 
         // wipe tbody
-        $('#results').find('tbody').html('');
-
-
-        // spreadsheet ID
-        var spreadsheet = '12dg24BuxtXZ2Zm4HaCMAAZ-FHr5kpRpmv-xgWlcd7mk';
+        table.find('tbody').html('');
 
         // fetch json
         $.getJSON('https://spreadsheets.google.com/feeds/list/'+ spreadsheet +'/1/public/values?alt=json', function(data) {
 
-        $.each(
-          data.feed.entry,
-          function(i) {
-            //console.log(this.gsx$name.$t + ': ' + this.gsx$email.$t);
-            $('#results').find('tbody').append(
-              '<tr><td>'
-              + this.gsx$name.$t
-              + '</td><td>'
-              + this.gsx$email.$t
-              + '</td><td>'
-              + this.gsx$comments.$t
-              + '</td><td>'
-              + this.gsx$return.$t
-              + '</td></tr>'
-            );
-          }
-        );
+          $.each(
+            data.feed.entry,
+            function(i) {
+              //console.log(this.gsx$name.$t + ': ' + this.gsx$email.$t);
+              table.find('tbody').append(
+                '<tr><td>'
+                + this.gsx$name.$t
+                + '</td><td>'
+                + this.gsx$email.$t
+                + '</td><td>'
+                + this.gsx$comments.$t
+                + '</td><td>'
+                + this.gsx$return.$t
+                + '</td></tr>'
+              );
+            }
+          );
 
-      });
+        });
 
       }
 
@@ -311,10 +319,18 @@
       $(document).ready(function() {
 
         // get scores on load
-        fetch_results();
+        fetch_results(_spreadsheet, _table);
         
         // set bindings
-        $('#spreadsheet_responses').bind('submit', submit_results);
+        $('#spreadsheet_responses').bind(
+          'submit',
+          {
+            form:  _form,
+            sheet: _spreadsheet,
+            table: _table
+          },
+          submit_results
+        );
 
       });
     </script>
