@@ -17,6 +17,69 @@
       Google Docs Demo
     </title>
 
+    <style type="text/css">
+
+      body {
+        font-family: Helveticva, Arial, sans-serif;
+        font-size: 14px;
+      }
+      hr {
+        margin: 30px 0;
+        background-color: transparent;
+        border-top: 1px solid #e8e8e8;
+        border-bottom: none;
+      }
+
+      /**
+       * form
+      **/
+      form {
+        margin-bottom: 30px;
+      }
+      form div {
+        margin-bottom: 10px;
+      }
+      label {
+        vertical-align: top;
+        display: inline-block;
+        min-width: 125px;
+      }
+
+      /**
+       * Table
+      **/
+      table {
+        width: 100%;
+      }
+      th, td {
+        text-align: left;
+        padding: 6px 10px;
+      }
+      th {
+        background-color: #e8e8e8;
+      }
+      td {
+        background-color: #fafafa;
+      }
+      th:first-child,
+      td:first-child {
+        width: 15%;
+      }
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 15%;
+      }
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 50%;
+      }
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 20%;
+      }
+
+    </style>
+
   </head>
   <body>
 
@@ -27,7 +90,12 @@
       * Google Form's response url. Submitting to a hidden iframe mimics a typical
       * ajax response.
     -->
-    <iframe src="#" id="empty_target" name="empty_target" style="visibility:hidden; display: none;"></iframe>
+    <iframe src="#"
+      id="empty_target"
+      name="empty_target"
+      style="display: none;"
+      >
+    </iframe>
 
     <!-- Custom form to submit to our spreadsheet -->
     <form id="spreadsheet_responses"
@@ -60,35 +128,35 @@
           placeholder="Enter your email"
           >
       </div>
-      <!-- colour field -->
+      <!-- comments field -->
       <div>
         <label>
-          Favourite Colour
+          Comments
+        </label>
+        <textarea rows="4"
+          id="comments"
+          name="comments"
+          placeholder="Your comments ..."
+          class="input"
+          ></textarea>
+      </div>
+      <!-- return field -->
+      <div>
+        <label>
+          Would take another class?
         </label>
         <input type="radio"
-          name="colour"
-          id="colour_red"
-          value="Red"
+          name="return"
+          id="return_yes"
+          value="Yes"
           >
-          Red
+          Yes
         <input type="radio"
-          name="colour"
-          id="colour_blue"
-          value="Blue"
+          name="return"
+          id="return_no"
+          value="No"
           >
-          Blue
-        <input type="radio"
-          name="colour"
-          id="colour_green"
-          value="Green"
-          >
-          Green
-        <input type="radio"
-          name="colour"
-          id="colour_other"
-          value="Other"
-          >
-          Other
+          No
       </div>
       <!-- submit button -->
       <input type="submit"
@@ -98,9 +166,61 @@
         value="Submit"
         >
     </form>
+
+    <hr>
+
+    <h1>
+      Results
+    </h1>
+
+    <table id="results">
+      <!-- table headings -->
+      <thead>
+        <tr>
+          <th>
+            Name
+          </th>
+          <th>
+            Email
+          </th>
+          <th>
+            Comments
+          </th>
+          <th>
+            Would you take another class?
+          </th>
+        </tr>
+      </thead>
+      <!-- table body -->
+      <tbody>
+        <tr>
+          <td>
+            test
+          </td>
+          <td>
+            example@example.com
+          </td>
+          <td>
+            Elit elementum ultrices tincidunt risus hac turpis sed ut! Non pid. In, sit
+            tempor enim, urna! Porta augue, pulvinar etiam cum mauris pulvinar urna pulvinar
+            natoque lacus turpis porttitor integer, lorem etiam?
+          </td>
+          <td>
+            Yes
+          </td>
+        </tr>
+      </tbody>
+    </table>
     
     <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
     <script>
+
+      /**
+       * Set Global Variables
+      **/
+      var _spreadsheet = '12dg24BuxtXZ2Zm4HaCMAAZ-FHr5kpRpmv-xgWlcd7mk';
+      var _form        = '1WxtuIuwiqNX2YMKXqREZXVc8QiV3nOF9zKuhjd77icE';
+      var _table       = $('#results');
 
       /**
        * @name:
@@ -115,33 +235,81 @@
         //e.preventDefault();
 
         // define constants from google form
-        var spreadsheet = '1WxtuIuwiqNX2YMKXqREZXVc8QiV3nOF9zKuhjd77icE';
-        var baseurl     = 'https://docs.google.com/forms/d/'+ spreadsheet +'/formResponse';
+        var baseurl     = 'https://docs.google.com/forms/d/'+ e.data.form +'/formResponse';
         var submitref   = '&submit=Submit';
         var nameID      = 'entry.564320569';
         var emailID     = 'entry.1542797104';
-        var colourID    = 'entry.1404808100';
+        var commentsID  = 'entry.2055425396';
+        var returnID    = 'entry.331491417';
 
         // validate / prep our form data
         // i'm skipping validation because it's a demo.
-        var name    = encodeURIComponent($(this).find('#name') .val());
-        var email   = encodeURIComponent($(this).find('#email').val());
-        var colour  = encodeURIComponent($(this).find('input[type=\'radio\']:checked').val());
+        var name          = encodeURIComponent($(this).find('#name') .val());
+        var email         = encodeURIComponent($(this).find('#email').val());
+        var comments      = encodeURIComponent($(this).find('#comments').val());
+        var return_status = encodeURIComponent($(this).find('input[type=\'radio\']:checked').val());
 
         // assemble our form destination
         var submiturl = (baseurl + '?'
           + nameID + '=' + name
           + '&' + emailID + '=' + email
-          + '&' + colourID + '=' + colour
+          + '&' + commentsID + '=' + comments
+          + '&' + returnID + '=' + return_status
           + submitref
         );
 
         console.log('name: ' + name);
         console.log('email: ' + email);
-        console.log('color: ' + colour);
+        console.log('comments: ' + comments);
+        console.log('return?: ' + return_status);
 
         // update form action and submit
         $(this)[0].action=submiturl;
+
+        // call fetch_results() to refresh the table
+        setTimeout(
+          function() {
+            fetch_results(e.data.sheet, e.data.table);
+          },
+          500
+        );
+
+      }
+
+      /**
+       * @name:
+       * fetch_results
+       *
+       * @description:
+       * Pull results from Google Spreadsheet as a json object. Append to table.
+      **/
+      function fetch_results(spreadsheet, table) {
+
+        // wipe tbody
+        table.find('tbody').html('');
+
+        // fetch json
+        $.getJSON('https://spreadsheets.google.com/feeds/list/'+ spreadsheet +'/1/public/values?alt=json', function(data) {
+
+          $.each(
+            data.feed.entry,
+            function(i) {
+              //console.log(this.gsx$name.$t + ': ' + this.gsx$email.$t);
+              table.find('tbody').append(
+                '<tr><td>'
+                + this.gsx$name.$t
+                + '</td><td>'
+                + this.gsx$email.$t
+                + '</td><td>'
+                + this.gsx$comments.$t
+                + '</td><td>'
+                + this.gsx$return.$t
+                + '</td></tr>'
+              );
+            }
+          );
+
+        });
 
       }
 
@@ -149,9 +317,20 @@
 
       // Init
       $(document).ready(function() {
+
+        // get scores on load
+        fetch_results(_spreadsheet, _table);
         
         // set bindings
-        $('#spreadsheet_responses').bind('submit', submit_results);
+        $('#spreadsheet_responses').bind(
+          'submit',
+          {
+            form:  _form,
+            sheet: _spreadsheet,
+            table: _table
+          },
+          submit_results
+        );
 
       });
     </script>
